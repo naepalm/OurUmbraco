@@ -8,7 +8,7 @@
         model.Level > 2 && model.AncestorOrSelf(3).Id == 1057
             ? "profile has-sidebar"
             : model.DocumentTypeAlias.ToLower().Replace(" ", "-") + "-page";
-    
+
     var memberIsBlocked = MemberData != null && MemberData.IsBlocked;
 
 
@@ -32,6 +32,13 @@
     Html.RequiresJs("~/assets/js/community.js");
     Html.RequiresJs("~/assets/js/app.min.js");
     Html.RequiresJs("~/assets/js/editor.min.js");
+
+    var title = string.Empty;
+    var navigationTitle = HttpContext.Current.Items["topicTitle"];
+    if (navigationTitle != null)
+    {
+        title = navigationTitle.ToString();
+    }
 
 }<!doctype html>
 <!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
@@ -68,24 +75,26 @@
     <link rel="icon" type="image/png" href="/assets/images/app-icons/favicon.png">
 
     <title>
-        @{
-            var title = string.Empty;
-            var navigationTitle = HttpContext.Current.Items["topicTitle"];
-            if (navigationTitle != null)
-            {
-                title = navigationTitle.ToString();
-            }
-
-            if (string.IsNullOrWhiteSpace(title) == false)
-            {
-                <text>@title - </text>
-            }
+        @if (string.IsNullOrWhiteSpace(title) == false)
+        {
+            <text>@title - </text>
         }
 
         @Model.Content.Name - our.umbraco.org
     </title>
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="og:site_name" content="our.umbraco.org" />
+    <meta name="og:title" content="@(!string.IsNullOrWhiteSpace(title) ? string.Format("{0} - ", title) : string.Empty)@Model.Content.Name" />
+    @if (!IsSectionDefined("MetaData"))
+    {
+        <meta name="og:type" content="website"/>
+        <meta name="description" content="Our.umbraco.org is the community mothership for Umbraco, the open source asp.net cms. With a friendly forum for all your questions, a comprehensive documentation and a ton of packages from the community.">
+        <meta name="og:description" content="Our.umbraco.org is the community mothership for Umbraco, the open source asp.net cms. With a friendly forum for all your questions, a comprehensive documentation and a ton of packages from the community.">
+        <meta name="og:image" content="https://our.umbraco.org/images/opengraph/cg2016Community.jpg" />
+    }
+    else
+    {
+        @RenderSection("MetaData", false)
+    }
 
     <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.7.1/modernizr.min.js"></script>
