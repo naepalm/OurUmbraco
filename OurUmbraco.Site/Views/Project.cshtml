@@ -2,6 +2,11 @@
 @{
     Layout = "~/Views/Master.cshtml";
 }
+
+@section MetaData {
+    @Html.Partial("~/Views/Partials/Projects/ProjectMetaData.cshtml")
+}
+
 <section class="plain">
     <div>
         <!-- FORUM HEADER START -->
