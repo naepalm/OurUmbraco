@@ -1,0 +1,42 @@
+@inherits OurUmbraco.Our.Models.OurUmbracoTemplatePage
+@using OurUmbraco.Our
+@using OurUmbraco.Project.Services
+@using OurUmbraco.Wiki.BusinessLogic
+
+@{
+    var project = Model.Content;
+    var owner = Members.GetById(Model.Content.GetPropertyValue<int>("owner"));
+
+    var files = WikiFile.CurrentFiles(project.Id);
+    var screenshots = files.Where(x => x.FileType == "screenshot").ToArray();
+
+    var cs = new ContributionService(ApplicationContext.Current.DatabaseContext);
+    var contributors = cs.GetContributors(project.Id).ToList();
+}
+
+<meta name="og:type" content="article" />
+<meta name="description" content="@Umbraco.Truncate(Umbraco.StripHtml(project.GetPropertyValue<string>("description")), 300)" />
+<meta name="og:description" content="@Umbraco.Truncate(Umbraco.StripHtml(project.GetPropertyValue<string>("description")), 300)" />
+<meta name="og:image" content="https://our.umbraco.org/images/opengraph/cg2016Community.jpg" />
+<meta name="article:published_time" content="@project.CreateDate.ToString("o")" /> @* This gets the ISO date/time *@
+<meta name="article:section" content="@project.Parent.Name" />
+<meta name="article:author" content="@owner.Name" />
+@if (contributors.Any())
+{
+    foreach (var contributor in contributors)
+    {
+        var member = Members.GetById(contributor.MemberId);
+        if (member != null)
+        {
+            <meta name="og:author" content="@member.Name" />
+        }
+    }
+}
+@if (screenshots.Any())
+{
+    foreach (var screenshot in screenshots)
+    {
+        // has to be done this way because meta images require an absolute domain
+        <meta name="og:image" content="@string.Format("https://our.umbraco.org{0}", Utils.GetScreenshotPath(screenshot.Path))" />
+    }
+}
